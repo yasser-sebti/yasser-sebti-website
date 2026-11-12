@@ -3,6 +3,8 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { buildRowMasks, maskSwipeUpReveal, thinLineSwipe } from './utils/textReveal'
 import LoadingScreen from './components/LoadingScreen'
+import TechnicalDropdown from './components/TechnicalDropdown'
+import { SPECIALIZATIONS_DATA, TOOLS_TECHS_DATA } from './data/dropdownData'
 
 // Lazy-load WebGL shader backdrop in its own lightweight async chunk
 const AtmosphericBackground = lazy(() => import('./components/AtmosphericBackground'))
@@ -53,6 +55,7 @@ export default function App() {
   )
   const [phase, setPhase] = useState('loading') // 'loading' | 'zooming' | 'done'
   const [contentRevealed, setContentRevealed] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState(null) // null | 'specializations' | 'tools'
 
   // Defer lazy WebGL chunk evaluation until after the preloader paints cleanly
   useEffect(() => {
@@ -388,26 +391,89 @@ export default function App() {
             />
 
             {/* Action Buttons Row (Strictly STATIC: No reveal animations applied) */}
-            <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex flex-row items-center gap-3 sm:gap-4 md:gap-5 pl-1.5 sm:pl-2 md:pl-2.5 lg:pl-3">
-              <button
-                type="button"
-                className="bg-brand-charcoal text-brand-white font-normal text-base sm:text-lg md:text-xl lg:text-[1.65rem] tracking-[-0.015em] px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-5 rounded-none inline-flex items-center gap-4 sm:gap-5 hover:bg-brand-navy transition-colors duration-200 cursor-pointer shadow-sm"
-              >
-                <span>Specializations</span>
-                <AddIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
+            <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex flex-row flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 md:gap-5 pl-1.5 sm:pl-2 md:pl-2.5 lg:pl-3">
+              {/* Specializations Dropdown Trigger */}
+              <div className="relative" data-dropdown-trigger="specializations">
+                <button
+                  type="button"
+                  aria-expanded={activeDropdown === 'specializations'}
+                  onClick={() =>
+                    setActiveDropdown((curr) =>
+                      curr === 'specializations' ? null : 'specializations',
+                    )
+                  }
+                  className={`text-brand-white font-normal text-base sm:text-lg md:text-xl lg:text-[1.65rem] tracking-[-0.015em] px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 md:py-3.5 lg:py-4 rounded-none inline-flex items-center gap-4 sm:gap-5 transition-all duration-300 cursor-pointer select-none border ${
+                    activeDropdown === 'specializations'
+                      ? 'dark-glass-active shadow-none'
+                      : 'border-transparent bg-brand-charcoal hover:bg-brand-navy shadow-sm'
+                  }`}
+                >
+                  <span className="relative inline-flex flex-col">
+                    <span>Specializations</span>
+                    <span
+                      className={`btn-underline-line ${
+                        activeDropdown === 'specializations' ? 'is-active' : ''
+                      }`}
+                    />
+                  </span>
+                  <AddIcon
+                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 ${
+                      activeDropdown === 'specializations' ? 'rotate-45' : ''
+                    }`}
+                  />
+                </button>
 
-              <button
-                type="button"
-                className="bg-brand-charcoal text-brand-white font-normal text-base sm:text-lg md:text-xl lg:text-[1.65rem] tracking-[-0.015em] px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-5 rounded-none inline-flex items-center gap-4 sm:gap-5 hover:bg-brand-navy transition-colors duration-200 cursor-pointer shadow-sm"
-              >
-                <span>Tools & Techs</span>
-                <AddIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
+                <div className="absolute bottom-full left-0 mb-3 z-50 pointer-events-none">
+                  <TechnicalDropdown
+                    {...SPECIALIZATIONS_DATA}
+                    isOpen={activeDropdown === 'specializations'}
+                    onClose={() => setActiveDropdown(null)}
+                  />
+                </div>
+              </div>
 
+              {/* Tools & Techs Dropdown Trigger */}
+              <div className="relative" data-dropdown-trigger="tools">
+                <button
+                  type="button"
+                  aria-expanded={activeDropdown === 'tools'}
+                  onClick={() =>
+                    setActiveDropdown((curr) => (curr === 'tools' ? null : 'tools'))
+                  }
+                  className={`text-brand-white font-normal text-base sm:text-lg md:text-xl lg:text-[1.65rem] tracking-[-0.015em] px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 md:py-3.5 lg:py-4 rounded-none inline-flex items-center gap-4 sm:gap-5 transition-all duration-300 cursor-pointer select-none border ${
+                    activeDropdown === 'tools'
+                      ? 'dark-glass-active shadow-none'
+                      : 'border-transparent bg-brand-charcoal hover:bg-brand-navy shadow-sm'
+                  }`}
+                >
+                  <span className="relative inline-flex flex-col">
+                    <span>Tools & Techs</span>
+                    <span
+                      className={`btn-underline-line ${
+                        activeDropdown === 'tools' ? 'is-active' : ''
+                      }`}
+                    />
+                  </span>
+                  <AddIcon
+                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 ${
+                      activeDropdown === 'tools' ? 'rotate-45' : ''
+                    }`}
+                  />
+                </button>
+
+                <div className="absolute bottom-full right-0 sm:right-auto sm:left-0 mb-3 z-50 pointer-events-none">
+                  <TechnicalDropdown
+                    {...TOOLS_TECHS_DATA}
+                    isOpen={activeDropdown === 'tools'}
+                    onClose={() => setActiveDropdown(null)}
+                  />
+                </div>
+              </div>
+
+              {/* Socials Link Button */}
               <button
                 type="button"
-                className="border border-brand-charcoal bg-transparent text-brand-charcoal font-normal text-base sm:text-lg md:text-xl lg:text-[1.65rem] tracking-[-0.015em] px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-5 rounded-none inline-flex items-center gap-4 sm:gap-5 hover:bg-brand-charcoal hover:text-brand-white transition-colors duration-200 cursor-pointer"
+                className="border border-brand-charcoal bg-transparent text-brand-charcoal font-normal text-base sm:text-lg md:text-xl lg:text-[1.65rem] tracking-[-0.015em] px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 md:py-3.5 lg:py-4 rounded-none inline-flex items-center gap-4 sm:gap-5 hover:bg-brand-charcoal hover:text-brand-white transition-colors duration-200 cursor-pointer"
               >
                 <span>Socials</span>
                 <ArrowOutwardIcon className="w-5 h-5 sm:w-6 sm:h-6" />
